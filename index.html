@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="ur" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>امۃ اللہ ⚓ ملا طٰہٰ | دعوتِ نکاح</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400..700&family=Amiri:ital,wght@0,400;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy-deep:#0a1638;
+    --navy:#122258;
+    --royal:#1b3380;
+    --royal-2:#2a469e;
+    --gold:#c8a24c;
+    --gold-light:#e9d49b;
+    --gold-dim:#a3813a;
+    --cream:#f5edd6;
+    --cream-2:#efe3c2;
+    --maroon:#9c1c2e;
+    --ink:#132057;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0; padding:0; height:100%; background:var(--navy-deep); overflow:hidden;}
+  body{
+    font-family:'Noto Nastaliq Urdu', serif;
+    color:var(--ink);
+  }
+  .latin{ font-family:'Cormorant Garamond', serif; direction:ltr; unicode-bidi:isolate; }
+
+  /* ---------- Decorative background wave (shared) ---------- */
+  .wave-wrap{
+    position:absolute; left:0; right:0; bottom:0; height:16%; min-height:70px;
+    overflow:hidden; pointer-events:none;
+  }
+  .wave-wrap svg{ width:100%; height:100%; display:block; }
+
+  /* =====================================================
+     INTRO OVERLAY
+  ===================================================== */
+  #intro-overlay{
+    position:fixed; inset:0; z-index:100;
+    background:
+      radial-gradient(ellipse at 50% 20%, rgba(42,70,158,0.55), transparent 60%),
+      linear-gradient(180deg, var(--navy-deep) 0%, var(--navy) 55%, #060d24 100%);
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    transition:opacity 1.1s ease;
+  }
+  #intro-overlay.hide-bg{ background:transparent; }
+  #intro-overlay.gone{ opacity:0; pointer-events:none; }
+
+  .stars-field{ position:absolute; inset:0; overflow:hidden; }
+  .stars-field span{
+    position:absolute; width:3px; height:3px; background:var(--gold-light);
+    border-radius:50%; opacity:.7; animation:twinkle 3.2s ease-in-out infinite;
+  }
+  @keyframes twinkle{ 0%,100%{opacity:.15; transform:scale(1);} 50%{opacity:.9; transform:scale(1.6);} }
+  .fading-chrome{ transition:opacity .8s ease; }
+  .gone-chrome{ opacity:0 !important; pointer-events:none; }
+
+  #logo-stage{
+    position:fixed; left:50%; top:46%; width:200px; height:317px;
+    transform:translate(-50%,-50%) scale(1);
+    transition: top 1.15s cubic-bezier(.65,0,.35,1), left 1.15s cubic-bezier(.65,0,.35,1),
+                width 1.15s cubic-bezier(.65,0,.35,1), height 1.15s cubic-bezier(.65,0,.35,1),
+                transform 1.15s cubic-bezier(.65,0,.35,1);
+    z-index:130; filter:drop-shadow(0 0 0 rgba(232,206,138,0));
+    pointer-events:none;
+  }
+  #logo-stage img{
+    position:absolute; top:0; left:0; width:100%; display:block;
+  }
+  #logo-left{ transform:translateX(-130%) rotate(-10deg); opacity:0;
+    transition:transform 1s cubic-bezier(.2,.7,.2,1), opacity .8s ease; }
+  #logo-right{ transform:translateX(130%) rotate(10deg); opacity:0;
+    transition:transform 1s cubic-bezier(.2,.7,.2,1), opacity .8s ease; }
+
+  body.assembling #logo-left{ transform:translateX(0) rotate(0deg); opacity:1; }
+  body.assembling #logo-right{ transform:translateX(0) rotate(0deg); opacity:1; }
+
+  body.assembled #logo-stage{
+    animation:pulseGlow 1.1s ease;
+  }
+  @keyframes pulseGlow{
+    0%{ filter:drop-shadow(0 0 0 rgba(232,206,138,0)); }
+    40%{ filter:drop-shadow(0 0 22px rgba(232,206,138,0.85)); }
+    100%{ filter:drop-shadow(0 0 0 rgba(232,206,138,0)); }
+  }
+
+  body.depart #logo-stage{
+    top:12px; left:50%; width:58px; height:92px;
+    transform:translate(-50%,0) scale(1);
+  }
+
+  #begin-btn{
+    position:relative; z-index:121; margin-top:min(46vh,320px);
+    background:transparent; border:1px solid var(--gold-dim);
+    color:var(--gold-light); font-family:'Noto Nastaliq Urdu',serif;
+    font-size:1.05rem; padding:.7em 1.6em; border-radius:2px;
+    cursor:pointer; letter-spacing:.5px;
+    box-shadow:0 0 0 1px rgba(200,162,76,0.15) inset;
+  }
+  #begin-btn:active{ transform:scale(.97); }
+  #begin-caption{
+    position:relative; z-index:121; margin-top:.9em; color:var(--gold-dim);
+    font-family:'Cormorant Garamond',serif; font-style:italic; font-size:.85rem;
+    letter-spacing:.4px;
+  }
+
+  /* =====================================================
+     SITE HEADER (persistent, appears after intro)
+  ===================================================== */
+  #site-header{
+    position:fixed; top:0; left:0; right:0; height:104px; z-index:60;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:0 16px; opacity:0; transition:opacity 1s ease .3s;
+    pointer-events:none;
+  }
+  #site-header.show{ opacity:1; pointer-events:auto; }
+  #site-header::before{
+    content:""; position:absolute; inset:0;
+    background:linear-gradient(180deg, rgba(10,22,56,0.85), rgba(10,22,56,0));
+    z-index:-1;
+  }
+  .hdr-btn{
+    width:38px; height:38px; border-radius:50%; border:1px solid rgba(232,206,138,.5);
+    background:rgba(10,22,56,.35); color:var(--gold-light); display:flex; align-items:center;
+    justify-content:center; cursor:pointer; font-size:1rem;
+  }
+  .hdr-spacer{ width:78px; } /* reserves space where the shrinking logo lands, centered */
+
+  /* =====================================================
+     PAGES
+  ===================================================== */
+  #book{
+    position:fixed; top:0; left:0; right:auto; bottom:auto; z-index:10;
+    display:flex; direction:ltr; width:300%; height:100%;
+    transition:transform .75s cubic-bezier(.65,0,.35,1);
+  }
+  .page{
+    direction:rtl;
+    width:33.3333%; height:100%; position:relative; overflow-y:auto; overflow-x:hidden;
+    background:
+      radial-gradient(ellipse at 50% 0%, rgba(255,255,255,.35), transparent 55%),
+      var(--cream);
+    -webkit-overflow-scrolling:touch;
+  }
+  .page::-webkit-scrollbar{ width:0; }
+  .page-inner{
+    position:relative; min-height:100%;
+    padding:118px 22px 130px;
+    display:flex; flex-direction:column; align-items:center;
+  }
+  /* subtle leaf texture via layered radial dots */
+  .page-inner::before{
+    content:""; position:absolute; inset:0; opacity:.5; pointer-events:none;
+    background-image:
+      radial-gradient(circle at 20% 15%, rgba(200,162,76,.08) 0, transparent 40%),
+      radial-gradient(circle at 85% 30%, rgba(200,162,76,.08) 0, transparent 40%),
+      radial-gradient(circle at 30% 80%, rgba(200,162,76,.08) 0, transparent 40%);
+  }
+
+  .frame{
+    position:relative; width:100%; max-width:560px;
+    border:1px solid var(--gold); padding:26px 16px 40px;
+    background:rgba(255,255,255,.12);
+  }
+  .frame::before{
+    content:""; position:absolute; inset:6px; border:1px solid var(--gold-dim); pointer-events:none;
+  }
+  .corner{ position:absolute; width:16px; height:16px; border:1px solid var(--gold); }
+  .corner.tl{ top:-1px; left:-1px; border-width:2px 0 0 2px; }
+  .corner.tr{ top:-1px; right:-1px; border-width:2px 2px 0 0; }
+  .corner.bl{ bottom:-1px; left:-1px; border-width:0 0 2px 2px; }
+  .corner.br{ bottom:-1px; right:-1px; border-width:0 2px 2px 0; }
+
+  .bismillah{ text-align:center; font-size:1.5rem; color:var(--ink); margin:0 0 18px; }
+
+  .poem{ text-align:center; margin:0 0 20px; line-height:2.3; font-size:1.18rem; color:var(--ink); }
+  .poem .accent{ color:var(--maroon); font-weight:700; }
+
+  .divider{ display:flex; align-items:center; gap:8px; margin:18px 0; opacity:.85; }
+  .divider::before, .divider::after{ content:""; flex:1; height:1px; background:var(--gold-dim); }
+  .divider span{ color:var(--gold-dim); font-size:.8rem; }
+
+  .dai-title{ text-align:center; font-size:1rem; color:var(--gold-dim); margin-bottom:6px; }
+  .dai-name{ text-align:center; font-size:1.35rem; color:var(--ink); margin-bottom:18px; }
+
+  .prose{ text-align:center; line-height:2.4; font-size:1.08rem; color:var(--ink); margin-bottom:6px; }
+  .prose .accent{ color:var(--maroon); font-weight:700; }
+
+  .couple-block{ display:flex; justify-content:space-between; align-items:flex-start; gap:10px; margin:22px 0 8px; width:100%; }
+  .couple-side{ flex:1; text-align:center; }
+  .couple-role{ font-size:.82rem; color:var(--gold-dim); margin-bottom:4px; }
+  .couple-name{ font-size:1.9rem; color:var(--navy); margin:4px 0; line-height:1.3; }
+  .couple-parent{ font-size:.78rem; color:var(--ink); opacity:.8; line-height:1.6; }
+  .couple-mid{ padding-top:10px; text-align:center; color:var(--gold-dim); font-size:.9rem; min-width:46px; }
+
+  .closing-line{ text-align:center; font-size:1.05rem; line-height:2.1; margin:18px 0 4px; color:var(--ink); }
+  .closing-final{ text-align:center; font-size:1.3rem; color:var(--gold-dim); margin-top:22px; }
+
+  .page-title{ text-align:center; font-size:1.7rem; color:var(--navy); margin-bottom:8px; }
+
+  /* ---- Program page ---- */
+  .event-grid{ display:grid; grid-template-columns:1fr 1fr; gap:14px; width:100%; margin-top:18px; }
+  .event-card{
+    border:1px solid var(--gold-dim); padding:14px 8px; text-align:center; position:relative;
+    background:rgba(255,255,255,.25);
+  }
+  .event-card .ornament{ color:var(--gold); font-size:.85rem; margin-bottom:6px; }
+  .event-name{ font-size:1.25rem; color:var(--navy); margin-bottom:8px; }
+  .event-date-h{ font-size:.85rem; color:var(--ink); }
+  .event-date-g{ font-size:.85rem; color:var(--gold-dim); border-top:1px solid var(--gold-dim); margin-top:4px; padding-top:4px; }
+  .event-card.wide{ grid-column:1 / -1; max-width:280px; margin:0 auto; }
+
+  .venue-line{ text-align:center; margin-top:26px; font-size:1.2rem; color:var(--navy); }
+
+  /* ---- Family page ---- */
+  .fam-title{ text-align:center; font-size:1.15rem; color:var(--navy); margin-bottom:22px; line-height:2; }
+  .fam-grid{ display:grid; grid-template-columns:1fr 1fr; gap:16px 10px; width:100%; margin-bottom:20px; }
+  .fam-col{ text-align:center; font-size:.92rem; line-height:2; color:var(--ink); }
+  .fam-family{ text-align:center; font-size:1.55rem; color:var(--gold-dim); margin-top:14px; }
+  .ship-motif{ width:120px; opacity:.9; margin:26px auto 4px; display:block; }
+
+  .page-wave{ position:absolute; left:0; right:0; bottom:0; height:130px; overflow:hidden; }
+
+  /* =====================================================
+     NAV DOTS + ARROWS
+  ===================================================== */
+  #page-nav{
+    position:fixed; bottom:16px; left:50%; transform:translateX(-50%); z-index:60;
+    display:flex; align-items:center; gap:16px; opacity:0; transition:opacity 1s ease .3s;
+    pointer-events:none;
+  }
+  #page-nav.show{ opacity:1; pointer-events:auto; }
+  .nav-arrow{
+    width:34px; height:34px; border-radius:50%; border:1px solid var(--gold);
+    background:rgba(10,22,56,.55); color:var(--gold-light); display:flex; align-items:center; justify-content:center;
+    cursor:pointer; font-size:.9rem;
+  }
+  .nav-arrow[disabled]{ opacity:.25; pointer-events:none; }
+  .nav-dots{ display:flex; gap:9px; }
+  .nav-dots span{
+    width:8px; height:8px; border-radius:50%; background:rgba(232,206,138,.35); cursor:pointer;
+    border:1px solid var(--gold-dim);
+  }
+  .nav-dots span.active{ background:var(--gold); }
+
+  audio{ display:none; }
+
+  @media (min-width:640px){
+    .couple-name{ font-size:2.3rem; }
+    .event-name{ font-size:1.5rem; }
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration:.001ms !important; transition-duration:.001ms !important; }
+  }
+</style>
+</head>
+<body>
+
+<audio id="bgm" loop preload="none">
+  <source src="assets/music.mp3" type="audio/mpeg">
+</audio>
+
+<!-- ============ INTRO ============ -->
+<div id="intro-overlay">
+  <div class="stars-field" id="stars-field"></div>
+  <button id="begin-btn" class="fading-chrome">بسم اللہ ⚓ سفر کا آغاز</button>
+  <div id="begin-caption" class="fading-chrome latin">tap the sail to begin</div>
+</div>
+
+<!-- logo-stage lives outside the overlay so it can persist as the header mark
+     after the intro background fades away -->
+<div id="logo-stage">
+  <img id="logo-left" src="assets/logo_left.png" alt="">
+  <img id="logo-right" src="assets/logo_right.png" alt="">
+</div>
+
+<!-- ============ HEADER ============ -->
+<header id="site-header">
+  <button class="hdr-btn" id="music-btn" aria-label="music">♪</button>
+  <div class="hdr-spacer"></div>
+  <span style="width:38px"></span>
+</header>
+
+<!-- ============ PAGES ============ -->
+<div id="book">
+
+  <!-- PAGE 1 -->
+  <section class="page" id="page-1">
+    <div class="page-inner">
+      <div class="frame">
+        <span class="corner tl"></span><span class="corner tr"></span>
+        <span class="corner bl"></span><span class="corner br"></span>
+
+        <p class="bismillah">بِسْمِ اللّٰہِ الرَّحْمٰنِ الرَّحِیْمِ</p>
+
+        <p class="poem">
+          لہکنا&nbsp; &nbsp;مہکنا&nbsp; &nbsp;بہم&nbsp; &nbsp;کھلکھلانا<br>
+          برن رنگ برنگ جس سے ازھار میں ہے<br>
+          بنا تختہ گل جواہر کی <span class="accent">کشتی</span><br>
+          <span class="accent">عروس</span> بہار آج سنگار میں ہے
+        </p>
+
+        <div class="divider"><span>❖</span></div>
+
+        <p class="dai-title">الداعی الاجل الفاطمی</p>
+        <p class="dai-name">سیدنا و مولانا ابوجعفر الصادق&nbsp;علی قدر مفضل سیف الدین</p>
+
+        <p class="prose">
+          نی نعمتو نا دریا بے کنار چھے، مؤمنین یر شکر نی <span class="accent">کشتی</span> ما سوار تھئی نے،
+          مرحلۃ بعد مرحلۃ طَے کری، حقیقی زندگی نو لطف حاصل کری رہیا چھے، اپ مولیٰ&nbsp;<span class="latin" style="color:var(--gold-dim); font-size:.85em;">ﻁﻉ</span>&nbsp;نی دعاء مبارك نا طفیل، ما اج یر زندگی نا ایك خاص مرحلة لگ ہنچاوی ھارا دکرا —
+        </p>
+
+        <div class="couple-block">
+          <div class="couple-side">
+            <div class="couple-role">البنت العزیزۃ</div>
+            <div class="couple-name">امۃ اللہ</div>
+            <div class="couple-parent">بنت خیرالدین بھائی فیکیدار<br>و مبارکۃ بائی فیکیدار</div>
+          </div>
+          <div class="couple-mid">فی<br>شادی<br>مع</div>
+          <div class="couple-side">
+            <div class="couple-role">الولد الاحب</div>
+            <div class="couple-name">ملا طٰہٰ</div>
+            <div class="couple-parent">ابن الشیخ مرتضیٰ بھائی مانجی<br>و تسنیم بائی مانجی</div>
+          </div>
+        </div>
+
+        <div class="divider"><span>❖</span></div>
+
+        <p class="prose">نی مسرۃ ہمینے نصیب تھئی چھے، اپ نے مع الاکرام اذن پیش کریئے چھے —</p>
+
+        <p class="closing-line">
+          حضورِ اعلیٰ&nbsp;<span class="latin" style="color:var(--gold-dim); font-size:.85em;">ﻁﻉ</span>&nbsp;نا دست مبارك پر عقد النکاح<br>
+          نو شرف نصیب تھیو چھے
+        </p>
+
+        <p class="closing-final">الحمد للہ، شکراً للہ</p>
+      </div>
+    </div>
+    <div class="page-wave" id="wave-1"></div>
+  </section>
+
+  <!-- PAGE 2 -->
+  <section class="page" id="page-2">
+    <div class="page-inner">
+      <div class="frame">
+        <span class="corner tl"></span><span class="corner tr"></span>
+        <span class="corner bl"></span><span class="corner br"></span>
+
+        <p class="page-title">پروگرام ان‌شاءاللہ</p>
+        <div class="divider"><span>⚓</span></div>
+
+        <div class="event-grid">
+          <div class="event-card">
+            <div class="ornament">۞</div>
+            <div class="event-name">شتابی</div>
+            <div class="event-date-h">۶&nbsp;جمادی الاولیٰ&nbsp;۱۴۴۸ھ</div>
+            <div class="event-date-g latin">16th October 2026</div>
+          </div>
+          <div class="event-card">
+            <div class="ornament">۞</div>
+            <div class="event-name">دریس</div>
+            <div class="event-date-h">۶&nbsp;جمادی الاولیٰ&nbsp;۱۴۴۸ھ</div>
+            <div class="event-date-g latin">16th October 2026</div>
+          </div>
+          <div class="event-card">
+            <div class="ornament">۞</div>
+            <div class="event-name">شہرگشت</div>
+            <div class="event-date-h">۱۴&nbsp;جمادی الاولیٰ&nbsp;۱۴۴۸ھ</div>
+            <div class="event-date-g latin">24th October 2026</div>
+          </div>
+          <div class="event-card">
+            <div class="ornament">۞</div>
+            <div class="event-name">ماما مسالا</div>
+            <div class="event-date-h">۱۴&nbsp;جمادی الاولیٰ&nbsp;۱۴۴۸ھ</div>
+            <div class="event-date-g latin">24th October 2026</div>
+          </div>
+          <div class="event-card wide">
+            <div class="ornament">۞</div>
+            <div class="event-name">پان گلاب</div>
+            <div class="event-date-h">۱۵&nbsp;جمادی الاولیٰ&nbsp;۱۴۴۸ھ</div>
+            <div class="event-date-g latin">25th October 2026</div>
+          </div>
+        </div>
+
+        <div class="divider"><span>❖</span></div>
+        <p class="venue-line">رسم سیفی — ڈونگرپور</p>
+      </div>
+    </div>
+    <div class="page-wave" id="wave-2"></div>
+  </section>
+
+  <!-- PAGE 3 -->
+  <section class="page" id="page-3">
+    <div class="page-inner">
+      <div class="frame">
+        <span class="corner tl"></span><span class="corner tr"></span>
+        <span class="corner bl"></span><span class="corner br"></span>
+
+        <p class="fam-title">عید سیدنا المنعام&nbsp;<span class="latin" style="color:var(--gold-dim); font-size:.8em;">ﻁﻉ</span>&nbsp;و اِمامہ</p>
+
+        <div class="fam-grid">
+          <div class="fam-col">مرتضیٰ بھائی و تسنیم بائی مانجی</div>
+          <div class="fam-col">حسینۃ، منیرۃ، ام الکرام، الاقمر بھائی</div>
+          <div class="fam-col">المرحوم اسمعیل بھائی والمرحومۃ مریم بائی مانجی</div>
+          <div class="fam-col">المرحوم قربان حسین بھائی وفاطمۃ بائی نہاروالا</div>
+          <div class="fam-col">کاکا کاکی، بھئیجی بھؤاجی انے فرزندو</div>
+          <div class="fam-col">ماما مامی، ماسی ماساجی انے فرزندو</div>
+        </div>
+
+        <div class="divider"><span>❖</span></div>
+        <p class="fam-family">مانجی انے نہاروالا فیمیلی</p>
+
+        <img class="ship-motif" src="assets/logo.png" alt="طٰہٰ امۃ اللہ">
+      </div>
+    </div>
+    <div class="page-wave" id="wave-3"></div>
+  </section>
+
+</div>
+
+<!-- ============ NAV ============ -->
+<nav id="page-nav">
+  <button class="nav-arrow" id="prev-btn" aria-label="previous">›</button>
+  <div class="nav-dots" id="nav-dots">
+    <span class="active" data-i="0"></span>
+    <span data-i="1"></span>
+    <span data-i="2"></span>
+  </div>
+  <button class="nav-arrow" id="next-btn" aria-label="next">‹</button>
+</nav>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ---- starfield ---- */
+  var sf = document.getElementById('stars-field');
+  for(var i=0;i<40;i++){
+    var s = document.createElement('span');
+    s.style.left = (Math.random()*100)+'%';
+    s.style.top = (Math.random()*70)+'%';
+    s.style.animationDelay = (Math.random()*3)+'s';
+    sf.appendChild(s);
+  }
+
+  /* ---- wave SVG (shared markup) ---- */
+  var waveSVG = '<svg viewBox="0 0 800 160" preserveAspectRatio="none">' +
+    '<path d="M0,90 C120,40 200,130 320,80 C440,30 520,120 640,70 C700,45 760,60 800,50 L800,160 L0,160 Z" fill="#0f1d4a" opacity="0.9"/>' +
+    '<path d="M0,120 C140,80 240,150 360,110 C480,70 560,140 680,100 C730,80 770,90 800,85 L800,160 L0,160 Z" fill="#0a1638"/>' +
+    '<path d="M0,90 C120,40 200,130 320,80 C440,30 520,120 640,70 C700,45 760,60 800,50" fill="none" stroke="#e9d49b" stroke-width="2" opacity="0.55"/>' +
+    '</svg>';
+  ['wave-1','wave-2','wave-3'].forEach(function(id){
+    document.getElementById(id).innerHTML = waveSVG;
+  });
+
+  /* ---- intro sequence ---- */
+  var overlay = document.getElementById('intro-overlay');
+  var beginBtn = document.getElementById('begin-btn');
+  var header = document.getElementById('site-header');
+  var pageNav = document.getElementById('page-nav');
+  var bgm = document.getElementById('bgm');
+  var started = false;
+
+  beginBtn.addEventListener('click', function(){
+    if(started) return;
+    started = true;
+
+    bgm.volume = 0.75;
+    bgm.play().catch(function(){ /* file may not be present yet; ignore */ });
+
+    document.body.classList.add('assembling');
+
+    setTimeout(function(){
+      document.body.classList.add('assembled');
+    }, 950);
+
+    setTimeout(function(){
+      document.body.classList.add('depart');
+      overlay.classList.add('hide-bg');
+      document.querySelectorAll('.fading-chrome').forEach(function(el){ el.classList.add('gone-chrome'); });
+      header.classList.add('show');
+      pageNav.classList.add('show');
+    }, 1750);
+
+    setTimeout(function(){
+      overlay.classList.add('gone');
+    }, 2850);
+
+  }, {passive:true});
+
+  /* ---- music toggle ---- */
+  var musicBtn = document.getElementById('music-btn');
+  var playing = true;
+  musicBtn.addEventListener('click', function(){
+    if(playing){ bgm.pause(); musicBtn.textContent='✕'; }
+    else { bgm.play().catch(function(){}); musicBtn.textContent='♪'; }
+    playing = !playing;
+  });
+
+  /* ---- page navigation ---- */
+  var book = document.getElementById('book');
+  var dots = document.querySelectorAll('#nav-dots span');
+  var prevBtn = document.getElementById('prev-btn');
+  var nextBtn = document.getElementById('next-btn');
+  var current = 0;
+  var total = 3;
+
+  function goTo(i){
+    current = Math.max(0, Math.min(total-1, i));
+    // RTL-friendly: pages laid out left-to-right in DOM (1,2,3); shift book left as we advance
+    book.style.transform = 'translateX(' + (current * -33.3333) + '%)';
+    dots.forEach(function(d,idx){ d.classList.toggle('active', idx===current); });
+    prevBtn.disabled = false;
+    nextBtn.disabled = false;
+  }
+
+  dots.forEach(function(d){
+    d.addEventListener('click', function(){ goTo(parseInt(d.getAttribute('data-i'),10)); });
+  });
+  // visually the deck reads right-to-left: "next" (‹) moves forward, "prev" (›) moves back
+  nextBtn.addEventListener('click', function(){ goTo(current+1); });
+  prevBtn.addEventListener('click', function(){ goTo(current-1); });
+
+  /* swipe support */
+  var touchStartX = null;
+  book.addEventListener('touchstart', function(e){ touchStartX = e.touches[0].clientX; }, {passive:true});
+  book.addEventListener('touchend', function(e){
+    if(touchStartX===null) return;
+    var dx = e.changedTouches[0].clientX - touchStartX;
+    if(Math.abs(dx) > 50){
+      if(dx < 0) goTo(current+1); else goTo(current-1);
+    }
+    touchStartX = null;
+  }, {passive:true});
+
+  goTo(0);
+})();
+</script>
+
+</body>
+</html>
