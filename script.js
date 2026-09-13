@@ -4,23 +4,14 @@
   var video = document.getElementById('intro-video');
   var videoWrap = document.getElementById('intro-video-wrap');
   var bgm = document.getElementById('bgm');
+  bgm.volume = 0.7;
 
-  function attemptSound(){
-    video.muted = false;
-    var p = video.play();
-    if(p && p.catch){
-      p.catch(function(){
-        video.muted = true;
-        video.play().catch(function(){});
-      });
-    }
-  }
-  attemptSound();
+  /* The intro video's own built-in sound stays permanently muted —
+     only the one linked background track plays, for the whole site. */
+  video.muted = true;
 
   function revealInvitation(){
     videoWrap.classList.add('fade-out');
-    bgm.volume = 0.7;
-    bgm.play().catch(function(){ /* may need a tap first on some browsers */ });
     setTimeout(function(){ videoWrap.style.display = 'none'; }, 1400);
   }
   video.addEventListener('ended', revealInvitation);
@@ -29,21 +20,20 @@
   /* No mobile browser allows sound to autoplay with zero interaction —
      that's a platform rule, not something any site can override. The
      closest possible thing to "automatic": the very first touch/scroll/
-     click ANYWHERE on the page immediately unmutes the video (if it's
-     still playing) and starts the music. */
+     click ANYWHERE on the page — even during the video — starts the
+     music immediately, so it plays under the video and carries straight
+     through into the invitation with no gap or restart. */
   var unlocked = false;
   function unlockSound(){
     if(unlocked) return;
     unlocked = true;
-    if(!video.ended && video.muted){
-      video.muted = false;
-      video.play().catch(function(){});
-    }
     bgm.play().catch(function(){});
   }
   ['touchstart','click','scroll','keydown'].forEach(function(evt){
     document.addEventListener(evt, unlockSound, {once:true, passive:true});
   });
+  /* best-effort: some browsers do allow this to succeed with no gesture at all */
+  bgm.play().then(function(){ unlocked = true; }).catch(function(){});
 
   /* fade cards in on scroll */
   var cards = document.querySelectorAll('.invite-card');
