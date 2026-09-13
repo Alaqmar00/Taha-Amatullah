@@ -1,39 +1,64 @@
 (function(){
   "use strict";
 
-  var video = document.getElementById('intro-video');
-  var videoWrap = document.getElementById('intro-video-wrap');
-  var bgm = document.getElementById('bgm');
+  var video      = document.getElementById('intro-video');
+  var videoWrap  = document.getElementById('intro-video-wrap');
+  var bgm        = document.getElementById('bgm');
+  var scrollHint = document.getElementById('scroll-hint');
+
   bgm.volume = 0.7;
 
-  /* The intro video's own built-in sound stays permanently muted —
-     only the one linked background track plays, for the whole site. */
-  video.muted = true;
+  /* -----------------------------------------------------------------
+     SOUND STRATEGY
+     -------------------------------------------------------------------
+     1. The intro video's OWN built-in audio track is permanently
+        muted (video.muted = true, and never changed) — it never plays,
+        by design.
+     2. The linked background track starts muted+autoplaying at the
+        exact same moment the video starts (browsers always allow
+        muted media to autoplay — this is the same rule that lets the
+        video itself autoplay). So the music is already running,
+        already in sync, already fully buffered in the background,
+        from frame one.
+     3. Browsers still require one real tap/scroll/click before they'll
+        let any sound actually come out of the speaker — that part is
+        a fixed platform rule with no code workaround, on every phone,
+        for every website. But because the track has already been
+        playing silently this whole time, the moment that happens we
+        don't start it — we just flip mute off. There is no fresh
+        network request and no buffering wait at that point, so sound
+        appears instantly instead of a few seconds late.
+  ----------------------------------------------------------------- */
 
+  video.muted = true;
+  bgm.muted = true;
+  bgm.play().catch(function(){ /* will retry via the events below if this is blocked */ });
+
+  function unmuteMusic(){
+    bgm.muted = false;
+    if(bgm.paused){ bgm.play().catch(function(){}); }
+  }
+  ['touchstart','pointerdown','mousedown','click','scroll','keydown'].forEach(function(evt){
+    document.addEventListener(evt, unmuteMusic, {once:true, passive:true});
+  });
+
+  /* -----------------------------------------------------------------
+     VIDEO -> INVITATION HANDOFF
+  ----------------------------------------------------------------- */
   function revealInvitation(){
     videoWrap.classList.add('fade-out');
-    setTimeout(function(){ videoWrap.style.display = 'none'; }, 1400);
+    setTimeout(function(){
+      videoWrap.style.display = 'none';
+      showScrollHint();
+    }, 1400);
   }
   video.addEventListener('ended', revealInvitation);
   video.addEventListener('error', revealInvitation);
 
-  /* No mobile browser allows sound to autoplay with zero interaction —
-     that's a platform rule, not something any site can override. The
-     closest possible thing to "automatic": the very first touch/scroll/
-     click ANYWHERE on the page — even during the video — starts the
-     music immediately, so it plays under the video and carries straight
-     through into the invitation with no gap or restart. */
-  var unlocked = false;
-  function unlockSound(){
-    if(unlocked) return;
-    unlocked = true;
-    bgm.play().catch(function(){});
+  function showScrollHint(){
+    scrollHint.classList.add('show');
+    setTimeout(function(){ scrollHint.classList.remove('show'); }, 2000);
   }
-  ['touchstart','click','scroll','keydown'].forEach(function(evt){
-    document.addEventListener(evt, unlockSound, {once:true, passive:true});
-  });
-  /* best-effort: some browsers do allow this to succeed with no gesture at all */
-  bgm.play().then(function(){ unlocked = true; }).catch(function(){});
 
   /* fade cards in on scroll */
   var cards = document.querySelectorAll('.invite-card');
