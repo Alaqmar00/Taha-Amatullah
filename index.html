@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="ur" dir="rtl" translate="no">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="google" content="notranslate">
+<meta name="robots" content="notranslate">
+<title>امۃ اللہ ⚓ ملا طٰہٰ | دعوتِ نکاح</title>
+<style>
+  :root{ --navy:#10102c; --royal:#1c4d92; --navy-2:#0b1b3e; --gold:#c8a24c; --gold-light:#e9d49b; }
+  *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body{ margin:0; padding:0; background:var(--navy); }
+  body{ overflow-x:hidden; }
+
+  /* ---------- intro video ---------- */
+  #intro-video-wrap{
+    position:fixed; inset:0; z-index:200; background:#0a1638;
+    display:flex; align-items:center; justify-content:center;
+    transition:opacity 1.3s ease;
+  }
+  #intro-video-wrap.fade-out{ opacity:0; pointer-events:none; }
+  #intro-video{ width:100%; height:100%; object-fit:cover; display:block; }
+
+  /* ---------- invitation scroll page ---------- */
+  #invitation{
+    position:relative; min-height:100vh; width:100%;
+    background:
+      radial-gradient(1.4px 1.4px at 12% 6%,  rgba(255,255,255,.5), transparent),
+      radial-gradient(1.2px 1.2px at 82% 10%, rgba(255,255,255,.4), transparent),
+      radial-gradient(1.6px 1.6px at 92% 28%, rgba(255,255,255,.45),transparent),
+      radial-gradient(1.2px 1.2px at 6% 36%,  rgba(255,255,255,.3), transparent),
+      radial-gradient(1.4px 1.4px at 70% 46%, rgba(255,255,255,.35),transparent),
+      radial-gradient(1.2px 1.2px at 25% 58%, rgba(255,255,255,.3), transparent),
+      radial-gradient(1.6px 1.6px at 88% 66%, rgba(255,255,255,.4), transparent),
+      radial-gradient(1.2px 1.2px at 15% 76%, rgba(255,255,255,.3), transparent),
+      radial-gradient(1.4px 1.4px at 55% 86%, rgba(255,255,255,.3), transparent),
+      radial-gradient(1.2px 1.2px at 40% 95%, rgba(255,255,255,.3), transparent),
+      linear-gradient(180deg, var(--royal) 0%, var(--navy-2) 18%, var(--navy) 40%, var(--navy) 100%);
+    padding:36px 0 60px;
+    display:flex; flex-direction:column; align-items:center;
+  }
+  .invite-card{
+    width:100%; max-width:720px; padding:0 16px; margin-bottom:56px;
+    opacity:0; transform:translateY(24px);
+    transition:opacity .9s ease, transform .9s ease;
+  }
+  .invite-card:last-child{ margin-bottom:0; }
+  .invite-card.in-view{ opacity:1; transform:translateY(0); }
+  .invite-card img{
+    width:100%; height:auto; display:block;
+    box-shadow:0 10px 40px rgba(0,0,0,.45);
+  }
+
+  #music-btn{
+    position:fixed; bottom:18px; right:18px; z-index:60;
+    width:40px; height:40px; border-radius:50%; border:1px solid rgba(233,212,155,.5);
+    background:rgba(10,22,56,.55); color:var(--gold-light); display:flex; align-items:center;
+    justify-content:center; cursor:pointer; font-size:1.05rem;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration:.001ms !important; transition-duration:.001ms !important; }
+  }
+</style>
+</head>
+<body>
+
+<audio id="bgm" loop preload="none">
+  <source src="assets/soft-tune.mp3" type="audio/mpeg">
+</audio>
+
+<!-- ============ INTRO VIDEO ============ -->
+<div id="intro-video-wrap">
+  <video id="intro-video" src="assets/intro.mp4" poster="assets/intro-poster.jpg" autoplay muted playsinline webkit-playsinline></video>
+</div>
+
+<!-- ============ INVITATION (single scroll) ============ -->
+<div id="invitation">
+  <div class="invite-card"><img src="assets/invitation-1.jpg" alt="دعوتِ نکاح"></div>
+  <div class="invite-card"><img src="assets/invitation-2.jpg" alt="پروگرام"></div>
+  <div class="invite-card"><img src="assets/invitation-3.jpg" alt="خاندان"></div>
+</div>
+
+<button id="music-btn" aria-label="music">♪</button>
+
+<script>
+(function(){
+  "use strict";
+
+  var video = document.getElementById('intro-video');
+  var videoWrap = document.getElementById('intro-video-wrap');
+  var bgm = document.getElementById('bgm');
+
+  function attemptSound(){
+    video.muted = false;
+    var p = video.play();
+    if(p && p.catch){
+      p.catch(function(){
+        video.muted = true;
+        video.play().catch(function(){});
+      });
+    }
+  }
+  attemptSound();
+
+  function revealInvitation(){
+    videoWrap.classList.add('fade-out');
+    bgm.volume = 0.7;
+    bgm.play().catch(function(){ /* may need a tap first on some browsers */ });
+    setTimeout(function(){ videoWrap.style.display = 'none'; }, 1400);
+  }
+  video.addEventListener('ended', revealInvitation);
+  video.addEventListener('error', revealInvitation);
+
+  /* music toggle — checks the audio element's REAL state each time,
+     instead of a separate flag that can drift out of sync with what
+     the browser actually did (e.g. when autoplay was silently blocked) */
+  var musicBtn = document.getElementById('music-btn');
+  function syncMusicBtn(){ musicBtn.textContent = bgm.paused ? '♪' : '✕'; }
+  musicBtn.addEventListener('click', function(){
+    if(bgm.paused){ bgm.play().catch(function(){}); }
+    else { bgm.pause(); }
+  });
+  bgm.addEventListener('play', syncMusicBtn);
+  bgm.addEventListener('pause', syncMusicBtn);
+  syncMusicBtn();
+
+  /* fade cards in on scroll */
+  var cards = document.querySelectorAll('.invite-card');
+  if('IntersectionObserver' in window){
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if(e.isIntersecting){ e.target.classList.add('in-view'); io.unobserve(e.target); }
+      });
+    }, {threshold:0.15});
+    cards.forEach(function(c){ io.observe(c); });
+  } else {
+    cards.forEach(function(c){ c.classList.add('in-view'); });
+  }
+})();
+</script>
+
+</body>
+</html>
