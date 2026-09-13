@@ -20,14 +20,18 @@
         video itself autoplay). So the music is already running,
         already in sync, already fully buffered in the background,
         from frame one.
-     3. Browsers still require one real tap/scroll/click before they'll
-        let any sound actually come out of the speaker — that part is
-        a fixed platform rule with no code workaround, on every phone,
-        for every website. But because the track has already been
-        playing silently this whole time, the moment that happens we
-        don't start it — we just flip mute off. There is no fresh
-        network request and no buffering wait at that point, so sound
-        appears instantly instead of a few seconds late.
+     3. Browsers still require one real, direct interaction — a tap,
+        a click, or a key press — before they'll let any sound out of
+        the speaker. IMPORTANT: scrolling does NOT count for this,
+        confirmed against Chromium's and Firefox's own engineering
+        docs — only discrete taps/clicks/keys do. So this only listens
+        for those genuinely-recognized gestures, not scroll. That part
+        is a fixed platform rule with no code workaround, on every
+        phone, for every website. But because the track has already
+        been playing silently this whole time, the moment a real tap
+        happens we don't start it — we just flip mute off. There is no
+        fresh network request and no buffering wait at that point, so
+        sound appears instantly instead of a few seconds late.
   ----------------------------------------------------------------- */
 
   video.muted = true;
@@ -38,7 +42,7 @@
     bgm.muted = false;
     if(bgm.paused){ bgm.play().catch(function(){}); }
   }
-  ['touchstart','pointerdown','mousedown','click','scroll','keydown'].forEach(function(evt){
+  ['touchstart','touchend','pointerdown','mousedown','click','keydown'].forEach(function(evt){
     document.addEventListener(evt, unmuteMusic, {once:true, passive:true});
   });
 
