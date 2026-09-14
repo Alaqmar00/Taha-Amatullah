@@ -1,6 +1,8 @@
 (function(){
   "use strict";
 
+  var openingScreen = document.getElementById('opening-screen');
+  var tapOpenBtn     = document.getElementById('tap-open-btn');
   var video      = document.getElementById('intro-video');
   var videoWrap  = document.getElementById('intro-video-wrap');
   var bgm        = document.getElementById('bgm');
@@ -15,23 +17,21 @@
         muted (video.muted = true, and never changed) — it never plays,
         by design.
      2. The linked background track starts muted+autoplaying at the
-        exact same moment the video starts (browsers always allow
-        muted media to autoplay — this is the same rule that lets the
-        video itself autoplay). So the music is already running,
-        already in sync, already fully buffered in the background,
-        from frame one.
+        exact same moment the page loads (browsers always allow
+        muted media to autoplay — this is the same rule that lets
+        muted video autoplay). So the music is already fully
+        buffered and ready to go silently, from frame one, while the
+        visitor is still looking at the opening screen.
      3. Browsers still require one real, direct interaction — a tap,
         a click, or a key press — before they'll let any sound out of
-        the speaker. IMPORTANT: scrolling does NOT count for this,
-        confirmed against Chromium's and Firefox's own engineering
-        docs — only discrete taps/clicks/keys do. So this only listens
-        for those genuinely-recognized gestures, not scroll. That part
-        is a fixed platform rule with no code workaround, on every
-        phone, for every website. But because the track has already
-        been playing silently this whole time, the moment a real tap
-        happens we don't start it — we just flip mute off. There is no
-        fresh network request and no buffering wait at that point, so
-        sound appears instantly instead of a few seconds late.
+        the speaker. The "Tap to Open" button IS that gesture: tapping
+        it bubbles a real click up to the document, which is exactly
+        what the listener below is waiting for. Because the track has
+        already been playing silently, the moment that tap happens we
+        don't start it — we just flip mute off. There is no fresh
+        network request and no buffering wait at that point, so sound
+        appears instantly instead of a few seconds late, and it opens
+        in the very same gesture that starts the video.
   ----------------------------------------------------------------- */
 
   video.muted = true;
@@ -44,6 +44,31 @@
   }
   ['touchstart','touchend','pointerdown','mousedown','click','keydown'].forEach(function(evt){
     document.addEventListener(evt, unmuteMusic, {once:true, passive:true});
+  });
+
+  /* -----------------------------------------------------------------
+     OPENING SCREEN -> INTRO VIDEO HANDOFF
+     One tap: unmutes the music (via the document-level listener
+     above, which this same click bubbles into), starts the intro
+     video playing, and fades/zooms the opening screen away.
+  ----------------------------------------------------------------- */
+  var opened = false;
+  function openInvitation(){
+    if(opened) return;
+    opened = true;
+
+    var playPromise = video.play();
+    if(playPromise && playPromise.catch){ playPromise.catch(function(){}); }
+
+    openingScreen.classList.add('opening-hide');
+    setTimeout(function(){
+      openingScreen.style.display = 'none';
+    }, 1200);
+  }
+  openingScreen.addEventListener('click', openInvitation);
+  tapOpenBtn.addEventListener('click', openInvitation);
+  tapOpenBtn.addEventListener('keydown', function(e){
+    if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); openInvitation(); }
   });
 
   /* -----------------------------------------------------------------

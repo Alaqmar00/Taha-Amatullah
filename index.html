@@ -12,6 +12,114 @@
   html,body{ margin:0; padding:0; background:var(--navy); }
   body{ overflow-x:hidden; }
 
+  /* ================================================================
+     OPENING SCREEN (new — premium minimal cover, shown before the
+     existing intro video). Everything below this block is untouched.
+  ================================================================ */
+  :root{ --open-navy:#101F5C; --open-navy-deep:#0a1440; --open-gold:#e8c378; --open-gold-soft:#f4dfae; }
+
+  #opening-screen{
+    position:fixed; inset:0; z-index:500;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:44px;
+    padding:24px;
+    overflow:hidden;
+    background:
+      radial-gradient(ellipse at 50% 38%, #17287a 0%, var(--open-navy) 46%, var(--open-navy-deep) 100%);
+    transition:opacity 1.15s ease, transform 1.15s ease;
+  }
+  #opening-screen.opening-hide{
+    opacity:0;
+    transform:scale(1.07);
+    pointer-events:none;
+  }
+  /* subtle gold Islamic geometric lattice, very low opacity */
+  #opening-screen::before{
+    content:"";
+    position:absolute; inset:-2px;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140' viewBox='0 0 140 140'%3E%3Cg fill='none' stroke='%23e8c378' stroke-width='0.7'%3E%3Cpath d='M70 4 L110 40 L110 100 L70 136 L30 100 L30 40 Z'/%3E%3Cpath d='M70 4 L70 40 M70 100 L70 136 M30 40 L110 40 M30 100 L110 100 M30 40 L30 100 M110 40 L110 100'/%3E%3Ccircle cx='70' cy='70' r='22'/%3E%3Cpath d='M70 48 L92 70 L70 92 L48 70 Z'/%3E%3C/g%3E%3C/svg%3E");
+    background-size:140px 140px;
+    opacity:.08;
+    pointer-events:none;
+  }
+  /* soft vignette so the pattern fades toward the edges */
+  #opening-screen::after{
+    content:"";
+    position:absolute; inset:0;
+    background:radial-gradient(ellipse at 50% 45%, transparent 0%, transparent 40%, rgba(10,20,64,.55) 100%);
+    pointer-events:none;
+  }
+
+  .opening-inner{
+    position:relative; z-index:1;
+    display:flex; flex-direction:column; align-items:center; gap:40px;
+    width:100%;
+  }
+
+  .opening-glow-wrap{
+    position:relative;
+    display:flex; align-items:center; justify-content:center;
+    width:100%;
+  }
+  .opening-glow-wrap::before{
+    content:"";
+    position:absolute;
+    width:70%; height:70%;
+    max-width:520px;
+    background:radial-gradient(ellipse at center, rgba(232,195,120,.28) 0%, rgba(232,195,120,0) 70%);
+    filter:blur(6px);
+    opacity:0;
+    animation:openGlowPulse 1.6s ease .3s forwards, openGlowBreathe 4.5s ease-in-out 2.2s infinite;
+  }
+
+  .opening-names-img{
+    position:relative;
+    width:min(560px, 84vw);
+    height:auto;
+    display:block;
+    border-radius:6px;
+    opacity:0;
+    transform:translateY(16px) scale(.96);
+    box-shadow:0 0 0 1px rgba(232,195,120,.22), 0 18px 50px rgba(0,0,0,.5), 0 0 40px rgba(232,195,120,.12);
+    animation:openNamesFadeIn 1.7s cubic-bezier(.19,1,.22,1) .35s forwards;
+  }
+
+  @keyframes openNamesFadeIn{
+    to{ opacity:1; transform:translateY(0) scale(1); }
+  }
+  @keyframes openGlowPulse{ to{ opacity:1; } }
+  @keyframes openGlowBreathe{
+    0%,100%{ opacity:.65; transform:scale(1); }
+    50%{ opacity:1; transform:scale(1.06); }
+  }
+
+  #tap-open-btn{
+    position:relative; z-index:1;
+    background:transparent;
+    border:1px solid var(--open-gold);
+    color:var(--open-gold-soft);
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+    font-size:.72rem;
+    letter-spacing:.22em;
+    text-transform:uppercase;
+    padding:15px 48px;
+    border-radius:999px;
+    cursor:pointer;
+    opacity:0;
+    animation:openBtnFadeIn 1.4s ease 1.5s forwards, openBtnPulse 2.6s ease-in-out 3.2s infinite;
+  }
+  @keyframes openBtnFadeIn{ to{ opacity:1; } }
+  @keyframes openBtnPulse{
+    0%,100%{ box-shadow:0 0 0 0 rgba(232,195,120,.4); transform:scale(1); }
+    50%{ box-shadow:0 0 0 9px rgba(232,195,120,0); transform:scale(1.035); }
+  }
+
+  @media (max-width:480px){
+    #opening-screen{ gap:34px; }
+    .opening-inner{ gap:32px; }
+    #tap-open-btn{ padding:13px 40px; font-size:.68rem; }
+  }
+
   /* ---------- intro video ---------- */
   #intro-video-wrap{
     position:fixed; inset:0; z-index:200; background:#0a1638;
@@ -19,7 +127,7 @@
     transition:opacity 1.3s ease;
   }
   #intro-video-wrap.fade-out{ opacity:0; pointer-events:none; }
-  #intro-video{ width:100%; height:100%; object-fit:cover; display:block; }
+  #intro-video{ width:100%; height:100%; object-fit:contain; object-position:center; display:block; }
 
   /* ---------- invitation scroll page ---------- */
   #invitation{
@@ -79,9 +187,19 @@
   <source src="https://mp3tourl.com/audio/1789298777935-bffe6a9c-7fb2-4971-bede-5be515da2879.mp3" type="audio/mpeg">
 </audio>
 
+<!-- ============ OPENING SCREEN (new) ============ -->
+<div id="opening-screen">
+  <div class="opening-inner">
+    <div class="opening-glow-wrap">
+      <img class="opening-names-img" src="assets/opening-names.png" alt="امۃ اللہ ⚓ ملا طٰہٰ">
+    </div>
+    <button id="tap-open-btn" type="button">Tap to Open</button>
+  </div>
+</div>
+
 <!-- ============ INTRO VIDEO ============ -->
 <div id="intro-video-wrap">
-  <video id="intro-video" src="assets/intro.mp4" poster="assets/intro-poster.jpg" autoplay muted playsinline webkit-playsinline></video>
+  <video id="intro-video" src="assets/intro.mp4" poster="assets/intro-poster.jpg" muted playsinline webkit-playsinline></video>
 </div>
 
 <!-- ============ INVITATION (single scroll) ============ -->
