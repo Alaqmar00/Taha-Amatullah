@@ -2,7 +2,6 @@
   "use strict";
 
   var openingScreen = document.getElementById('opening-screen');
-  var tapOpenBtn     = document.getElementById('tap-open-btn');
   var video      = document.getElementById('intro-video');
   var videoWrap  = document.getElementById('intro-video-wrap');
   var bgm        = document.getElementById('bgm');
@@ -18,20 +17,18 @@
         by design.
      2. The linked background track starts muted+autoplaying at the
         exact same moment the page loads (browsers always allow
-        muted media to autoplay — this is the same rule that lets
-        muted video autoplay). So the music is already fully
-        buffered and ready to go silently, from frame one, while the
-        visitor is still looking at the opening screen.
+        muted media to autoplay). So the music is already fully
+        buffered and ready to go silently while the visitor is still
+        looking at the opening screen.
      3. Browsers still require one real, direct interaction — a tap,
         a click, or a key press — before they'll let any sound out of
-        the speaker. The "Tap to Open" button IS that gesture: tapping
+        the speaker. Tapping the opening screen IS that gesture:
         it bubbles a real click up to the document, which is exactly
         what the listener below is waiting for. Because the track has
         already been playing silently, the moment that tap happens we
-        don't start it — we just flip mute off. There is no fresh
-        network request and no buffering wait at that point, so sound
-        appears instantly instead of a few seconds late, and it opens
-        in the very same gesture that starts the video.
+        don't start it — we just flip mute off. Sound appears
+        instantly, in the very same gesture that opens the screen and
+        starts the video.
   ----------------------------------------------------------------- */
 
   video.muted = true;
@@ -48,27 +45,46 @@
 
   /* -----------------------------------------------------------------
      OPENING SCREEN -> INTRO VIDEO HANDOFF
-     One tap: unmutes the music (via the document-level listener
-     above, which this same click bubbles into), starts the intro
-     video playing, and fades/zooms the opening screen away.
+     Tapping anywhere on the opening screen starts the intro video
+     and unmutes the music (via the document-level listener above,
+     which this same click bubbles into), then the screen "opens"
+     with an iris-style reveal centered on exactly where the visitor
+     tapped, exposing the video underneath. Because the opening
+     screen and the video wrap share the same base navy tone
+     (--stage-navy), there's no color seam during the reveal.
   ----------------------------------------------------------------- */
   var opened = false;
-  function openInvitation(){
+  function openInvitation(evt){
     if(opened) return;
     opened = true;
+
+    var xPct = 50, yPct = 50;
+    if(evt && typeof evt.clientX === 'number' && (evt.clientX || evt.clientY)){
+      xPct = (evt.clientX / window.innerWidth) * 100;
+      yPct = (evt.clientY / window.innerHeight) * 100;
+    } else if(evt && evt.changedTouches && evt.changedTouches.length){
+      var t = evt.changedTouches[0];
+      xPct = (t.clientX / window.innerWidth) * 100;
+      yPct = (t.clientY / window.innerHeight) * 100;
+    }
+    openingScreen.style.setProperty('--tap-x', xPct + '%');
+    openingScreen.style.setProperty('--tap-y', yPct + '%');
 
     var playPromise = video.play();
     if(playPromise && playPromise.catch){ playPromise.catch(function(){}); }
 
-    openingScreen.classList.add('opening-hide');
+    // next frame, so the custom properties are committed before the transition starts
+    requestAnimationFrame(function(){
+      openingScreen.classList.add('opening-hide');
+    });
+
     setTimeout(function(){
       openingScreen.style.display = 'none';
-    }, 1200);
+    }, 1300);
   }
   openingScreen.addEventListener('click', openInvitation);
-  tapOpenBtn.addEventListener('click', openInvitation);
-  tapOpenBtn.addEventListener('keydown', function(e){
-    if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); openInvitation(); }
+  openingScreen.addEventListener('keydown', function(e){
+    if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); openInvitation(e); }
   });
 
   /* -----------------------------------------------------------------

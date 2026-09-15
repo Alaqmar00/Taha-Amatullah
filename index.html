@@ -13,48 +13,85 @@
   body{ overflow-x:hidden; }
 
   /* ================================================================
-     OPENING SCREEN (new — premium minimal cover, shown before the
-     existing intro video). Everything below this block is untouched.
+     OPENING SCREEN (new — shown before the existing intro video).
+     Its base tone (--stage-navy) is the SAME color the intro video
+     wrap is filled with, so the iris-reveal below never shows a
+     color seam between the cover and the video underneath.
+     Everything from "INTRO VIDEO" onward is unchanged.
   ================================================================ */
-  :root{ --open-navy:#101F5C; --open-navy-deep:#0a1440; --open-gold:#e8c378; --open-gold-soft:#f4dfae; }
+  :root{
+    --stage-navy:#0a1638;       /* matches #intro-video-wrap background exactly */
+    --open-gold:#e8c378;
+    --open-gold-soft:#f4dfae;
+  }
 
   #opening-screen{
     position:fixed; inset:0; z-index:500;
     display:flex; flex-direction:column; align-items:center; justify-content:center;
-    gap:44px;
+    gap:38px;
     padding:24px;
     overflow:hidden;
+    cursor:pointer;
     background:
-      radial-gradient(ellipse at 50% 38%, #17287a 0%, var(--open-navy) 46%, var(--open-navy-deep) 100%);
-    transition:opacity 1.15s ease, transform 1.15s ease;
+      radial-gradient(ellipse at 50% 40%, #1a2c72 0%, #101f5c 42%, var(--stage-navy) 100%);
+    clip-path:circle(150% at 50% 50%);
+    transition:clip-path 1.25s cubic-bezier(.65,0,.35,1);
+    will-change:clip-path;
   }
   #opening-screen.opening-hide{
-    opacity:0;
-    transform:scale(1.07);
-    pointer-events:none;
+    clip-path:circle(0% at var(--tap-x,50%) var(--tap-y,50%));
   }
+  @supports not (clip-path: circle(1% at 1% 1%)){
+    #opening-screen{ transition:opacity 1s ease, transform 1s ease; }
+    #opening-screen.opening-hide{ opacity:0; transform:scale(1.06); pointer-events:none; }
+  }
+
   /* subtle gold Islamic geometric lattice, very low opacity */
   #opening-screen::before{
     content:"";
     position:absolute; inset:-2px;
     background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140' viewBox='0 0 140 140'%3E%3Cg fill='none' stroke='%23e8c378' stroke-width='0.7'%3E%3Cpath d='M70 4 L110 40 L110 100 L70 136 L30 100 L30 40 Z'/%3E%3Cpath d='M70 4 L70 40 M70 100 L70 136 M30 40 L110 40 M30 100 L110 100 M30 40 L30 100 M110 40 L110 100'/%3E%3Ccircle cx='70' cy='70' r='22'/%3E%3Cpath d='M70 48 L92 70 L70 92 L48 70 Z'/%3E%3C/g%3E%3C/svg%3E");
     background-size:140px 140px;
-    opacity:.08;
+    opacity:.07;
     pointer-events:none;
   }
-  /* soft vignette so the pattern fades toward the edges */
+  /* soft vignette so the pattern fades toward the edges, and the very
+     edge of the screen settles into --stage-navy to match the video */
   #opening-screen::after{
     content:"";
     position:absolute; inset:0;
-    background:radial-gradient(ellipse at 50% 45%, transparent 0%, transparent 40%, rgba(10,20,64,.55) 100%);
+    background:radial-gradient(ellipse at 50% 45%, transparent 0%, transparent 38%, var(--stage-navy) 100%);
     pointer-events:none;
   }
 
   .opening-inner{
     position:relative; z-index:1;
-    display:flex; flex-direction:column; align-items:center; gap:40px;
+    display:flex; flex-direction:column; align-items:center; gap:34px;
     width:100%;
   }
+
+  /* ornamental frame around the names artwork — thin double gold
+     hairline with a small diamond flourish top & bottom, like a
+     wax-seal card rather than a plain floating image */
+  .opening-frame{
+    position:relative;
+    display:flex; align-items:center; justify-content:center;
+    padding:22px 20px;
+    width:min(560px, 84vw);
+  }
+  .opening-frame::before{
+    content:"";
+    position:absolute; inset:0;
+    border:1px solid rgba(232,195,120,.55);
+    box-shadow:inset 0 0 0 5px var(--stage-navy), inset 0 0 0 6px rgba(232,195,120,.3);
+  }
+  .opening-frame .flourish{
+    position:absolute; left:50%; width:9px; height:9px;
+    background:var(--open-gold);
+    transform:translateX(-50%) rotate(45deg);
+  }
+  .opening-frame .flourish.top{ top:-5px; }
+  .opening-frame .flourish.bottom{ bottom:-5px; }
 
   .opening-glow-wrap{
     position:relative;
@@ -64,9 +101,8 @@
   .opening-glow-wrap::before{
     content:"";
     position:absolute;
-    width:70%; height:70%;
-    max-width:520px;
-    background:radial-gradient(ellipse at center, rgba(232,195,120,.28) 0%, rgba(232,195,120,0) 70%);
+    width:80%; height:80%;
+    background:radial-gradient(ellipse at center, rgba(232,195,120,.22) 0%, rgba(232,195,120,0) 70%);
     filter:blur(6px);
     opacity:0;
     animation:openGlowPulse 1.6s ease .3s forwards, openGlowBreathe 4.5s ease-in-out 2.2s infinite;
@@ -74,13 +110,11 @@
 
   .opening-names-img{
     position:relative;
-    width:min(560px, 84vw);
+    width:100%;
     height:auto;
     display:block;
-    border-radius:6px;
     opacity:0;
-    transform:translateY(16px) scale(.96);
-    box-shadow:0 0 0 1px rgba(232,195,120,.22), 0 18px 50px rgba(0,0,0,.5), 0 0 40px rgba(232,195,120,.12);
+    transform:translateY(14px) scale(.97);
     animation:openNamesFadeIn 1.7s cubic-bezier(.19,1,.22,1) .35s forwards;
   }
 
@@ -89,40 +123,46 @@
   }
   @keyframes openGlowPulse{ to{ opacity:1; } }
   @keyframes openGlowBreathe{
-    0%,100%{ opacity:.65; transform:scale(1); }
-    50%{ opacity:1; transform:scale(1.06); }
+    0%,100%{ opacity:.6; transform:scale(1); }
+    50%{ opacity:1; transform:scale(1.05); }
   }
 
-  #tap-open-btn{
+  /* the tap affordance: a small gold ring "seal" instead of a plain
+     button — the whole screen is tappable, this just signals where */
+  .opening-seal{
     position:relative; z-index:1;
-    background:transparent;
+    width:58px; height:58px;
+    border-radius:50%;
     border:1px solid var(--open-gold);
-    color:var(--open-gold-soft);
-    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
-    font-size:.72rem;
-    letter-spacing:.22em;
-    text-transform:uppercase;
-    padding:15px 48px;
-    border-radius:999px;
-    cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
     opacity:0;
-    animation:openBtnFadeIn 1.4s ease 1.5s forwards, openBtnPulse 2.6s ease-in-out 3.2s infinite;
+    animation:openSealFadeIn 1.4s ease 1.5s forwards, openSealPulse 2.6s ease-in-out 3.1s infinite;
   }
-  @keyframes openBtnFadeIn{ to{ opacity:1; } }
-  @keyframes openBtnPulse{
+  .opening-seal::before{
+    content:"";
+    position:absolute; inset:-9px;
+    border:1px solid rgba(232,195,120,.3);
+    border-radius:50%;
+  }
+  .opening-seal-dot{
+    width:7px; height:7px; border-radius:50%;
+    background:var(--open-gold);
+  }
+  @keyframes openSealFadeIn{ to{ opacity:1; } }
+  @keyframes openSealPulse{
     0%,100%{ box-shadow:0 0 0 0 rgba(232,195,120,.4); transform:scale(1); }
-    50%{ box-shadow:0 0 0 9px rgba(232,195,120,0); transform:scale(1.035); }
+    50%{ box-shadow:0 0 0 10px rgba(232,195,120,0); transform:scale(1.06); }
   }
 
   @media (max-width:480px){
-    #opening-screen{ gap:34px; }
-    .opening-inner{ gap:32px; }
-    #tap-open-btn{ padding:13px 40px; font-size:.68rem; }
+    #opening-screen{ gap:30px; }
+    .opening-inner{ gap:26px; }
+    .opening-seal{ width:50px; height:50px; }
   }
 
   /* ---------- intro video ---------- */
   #intro-video-wrap{
-    position:fixed; inset:0; z-index:200; background:#0a1638;
+    position:fixed; inset:0; z-index:200; background:var(--stage-navy);
     display:flex; align-items:center; justify-content:center;
     transition:opacity 1.3s ease;
   }
@@ -188,12 +228,16 @@
 </audio>
 
 <!-- ============ OPENING SCREEN (new) ============ -->
-<div id="opening-screen">
+<div id="opening-screen" role="button" tabindex="0" aria-label="Tap to open the invitation">
   <div class="opening-inner">
     <div class="opening-glow-wrap">
-      <img class="opening-names-img" src="assets/opening-names.png" alt="امۃ اللہ ⚓ ملا طٰہٰ">
+      <div class="opening-frame">
+        <span class="flourish top"></span>
+        <img class="opening-names-img" src="assets/opening-names.png" alt="امۃ اللہ ⚓ ملا طٰہٰ">
+        <span class="flourish bottom"></span>
+      </div>
     </div>
-    <button id="tap-open-btn" type="button">Tap to Open</button>
+    <div class="opening-seal"><span class="opening-seal-dot"></span></div>
   </div>
 </div>
 
