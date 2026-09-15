@@ -2,6 +2,7 @@
   "use strict";
 
   var openingScreen = document.getElementById('opening-screen');
+  var tapOpenBtn     = document.getElementById('tap-open-btn');
   var video      = document.getElementById('intro-video');
   var videoWrap  = document.getElementById('intro-video-wrap');
   var bgm        = document.getElementById('bgm');
@@ -22,13 +23,12 @@
         looking at the opening screen.
      3. Browsers still require one real, direct interaction — a tap,
         a click, or a key press — before they'll let any sound out of
-        the speaker. Tapping the opening screen IS that gesture:
-        it bubbles a real click up to the document, which is exactly
-        what the listener below is waiting for. Because the track has
-        already been playing silently, the moment that tap happens we
-        don't start it — we just flip mute off. Sound appears
-        instantly, in the very same gesture that opens the screen and
-        starts the video.
+        the speaker. Tapping "Tap to Open" IS that gesture: it bubbles
+        a real click up to the document, which is exactly what the
+        listener below is waiting for. Because the track has already
+        been playing silently, the moment that tap happens we don't
+        start it — we just flip mute off, so sound appears instantly
+        in the very same gesture that starts the video.
   ----------------------------------------------------------------- */
 
   video.muted = true;
@@ -45,47 +45,24 @@
 
   /* -----------------------------------------------------------------
      OPENING SCREEN -> INTRO VIDEO HANDOFF
-     Tapping anywhere on the opening screen starts the intro video
-     and unmutes the music (via the document-level listener above,
-     which this same click bubbles into), then the screen "opens"
-     with an iris-style reveal centered on exactly where the visitor
-     tapped, exposing the video underneath. Because the opening
-     screen and the video wrap share the same base navy tone
-     (--stage-navy), there's no color seam during the reveal.
+     One tap on the button: starts the video, unmutes the music (via
+     the document-level listener above, which this click bubbles
+     into), and fades the opening screen out.
   ----------------------------------------------------------------- */
   var opened = false;
-  function openInvitation(evt){
+  function openInvitation(){
     if(opened) return;
     opened = true;
-
-    var xPct = 50, yPct = 50;
-    if(evt && typeof evt.clientX === 'number' && (evt.clientX || evt.clientY)){
-      xPct = (evt.clientX / window.innerWidth) * 100;
-      yPct = (evt.clientY / window.innerHeight) * 100;
-    } else if(evt && evt.changedTouches && evt.changedTouches.length){
-      var t = evt.changedTouches[0];
-      xPct = (t.clientX / window.innerWidth) * 100;
-      yPct = (t.clientY / window.innerHeight) * 100;
-    }
-    openingScreen.style.setProperty('--tap-x', xPct + '%');
-    openingScreen.style.setProperty('--tap-y', yPct + '%');
 
     var playPromise = video.play();
     if(playPromise && playPromise.catch){ playPromise.catch(function(){}); }
 
-    // next frame, so the custom properties are committed before the transition starts
-    requestAnimationFrame(function(){
-      openingScreen.classList.add('opening-hide');
-    });
-
+    openingScreen.classList.add('opening-hide');
     setTimeout(function(){
       openingScreen.style.display = 'none';
-    }, 1300);
+    }, 1050);
   }
-  openingScreen.addEventListener('click', openInvitation);
-  openingScreen.addEventListener('keydown', function(e){
-    if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); openInvitation(e); }
-  });
+  tapOpenBtn.addEventListener('click', openInvitation);
 
   /* -----------------------------------------------------------------
      VIDEO -> INVITATION HANDOFF
@@ -104,6 +81,19 @@
     scrollHint.classList.add('show');
     setTimeout(function(){ scrollHint.classList.remove('show'); }, 2000);
   }
+
+  /* -----------------------------------------------------------------
+     Keep the video wrap sized to the ACTUAL visible viewport on
+     mobile (100dvh in CSS already handles most modern browsers; this
+     is a small fallback for older ones where the address bar
+     showing/hiding otherwise leaves odd gaps around the video).
+  ----------------------------------------------------------------- */
+  function setViewportHeightVar(){
+    document.documentElement.style.setProperty('--vh', (window.innerHeight * 0.01) + 'px');
+  }
+  setViewportHeightVar();
+  window.addEventListener('resize', setViewportHeightVar);
+  window.addEventListener('orientationchange', setViewportHeightVar);
 
   /* fade cards in on scroll */
   var cards = document.querySelectorAll('.invite-card');
